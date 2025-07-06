@@ -15,6 +15,6 @@
   }
 
   body {
-    @apply bg-[--primary-bg] text-[--text-secondary] font-sans;
+    @apply bg-[--primary-bg] text-[--text-secondary];
   }
 }

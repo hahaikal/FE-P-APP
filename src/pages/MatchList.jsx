@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchMatches } from '../services/apiService';
 import MatchCard from '../components/MatchCard';
-import './MatchList.css';
 
 const MatchList = () => {
   const [matches, setMatches] = useState([]);

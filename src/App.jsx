@@ -14,7 +14,7 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<MatchList />} />
-            <Route path="/match/:id" element={<MatchDetail />} />
+            <Route path="/match/:matchId" element={<MatchDetail />} />
           </Routes>
         </main>
         <Footer />

@@ -14,3 +14,20 @@
   border: 1px solid #ff4d4d;
   border-radius: 8px;
 }
+
+.skeleton-bar {
+  height: 2rem; /* 32px */
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 0.375rem; /* 6px */
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
