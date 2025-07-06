@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary-bg: #1a1a2e;
+    --secondary-bg: #16213e;
+    --card-bg: #0f3460;
+    --text-primary: #e94560;
+    --text-secondary: #ffffff;
+    --bar-home: #53a8b6;
+    --bar-draw: #7c7c7c;
+    --bar-away: #f67280;
+  }
+
+  body {
+    @apply bg-[--primary-bg] text-[--text-secondary] font-sans;
+  }
+}
