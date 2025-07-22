@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,28 +12,33 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Match } from '@/types';
 
 interface EditScoreModalProps {
   isOpen: boolean;
   onClose: () => void;
-  match: {
-    id: string;
-    match: string;
-    finalScore?: string | null;
-  };
-  onSave: (matchId: string, score: string) => void;
+  match: Match | null;
+  onSave: (matchId: number, homeScore: number, awayScore: number) => void;
 }
 
 export function EditScoreModal({ isOpen, onClose, match, onSave }: EditScoreModalProps) {
-  const [score, setScore] = useState(match.finalScore || '');
+  const [homeScore, setHomeScore] = useState<string>('');
+  const [awayScore, setAwayScore] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (match) {
+      setHomeScore(match.result_home_score?.toString() || '');
+      setAwayScore(match.result_away_score?.toString() || '');
+    }
+  }, [match]);
+
   const handleSave = async () => {
-    if (!score.trim()) return;
+    if (!match || homeScore.trim() === '' || awayScore.trim() === '') return;
     
     setIsLoading(true);
     try {
-      await onSave(match.id, score);
+      await onSave(match.id, parseInt(homeScore, 10), parseInt(awayScore, 10));
       onClose();
     } catch (error) {
       console.error('Error saving score:', error);
@@ -42,44 +47,48 @@ export function EditScoreModal({ isOpen, onClose, match, onSave }: EditScoreModa
     }
   };
 
-  const handleClose = () => {
-    setScore(match.finalScore || '');
-    onClose();
-  };
+  if (!match) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Edit Skor Akhir</DialogTitle>
           <DialogDescription>
-            Masukkan skor akhir untuk pertandingan: <strong>{match.match}</strong>
+            Masukkan skor akhir untuk: <strong>{`${match.home_team} vs ${match.away_team}`}</strong>
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4 py-4">
+        <div className="grid grid-cols-2 gap-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="score">Skor Akhir</Label>
+            <Label htmlFor="homeScore">{match.home_team} (Home)</Label>
             <Input
-              id="score"
-              placeholder="Contoh: 2-1, 0-0, 3-2"
-              value={score}
-              onChange={(e) => setScore(e.target.value)}
+              id="homeScore"
+              type="number"
+              placeholder="Skor"
+              value={homeScore}
+              onChange={(e) => setHomeScore(e.target.value)}
               className="w-full"
             />
-            <p className="text-sm text-gray-500">
-              Format: Skor Tim Tuan Rumah - Skor Tim Tamu
-            </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="awayScore">{match.away_team} (Away)</Label>
+            <Input
+              id="awayScore"
+              type="number"
+              placeholder="Skor"
+              value={awayScore}
+              onChange={(e) => setAwayScore(e.target.value)}
+              className="w-full"
+            />
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>
-            Batal
-          </Button>
+          <Button variant="outline" onClick={onClose}>Batal</Button>
           <Button 
             onClick={handleSave} 
-            disabled={!score.trim() || isLoading}
+            disabled={homeScore.trim() === '' || awayScore.trim() === '' || isLoading}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             {isLoading ? 'Menyimpan...' : 'Simpan'}

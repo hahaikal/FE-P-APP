@@ -11,21 +11,20 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { AlertTriangle } from 'lucide-react';
+import { Match } from '@/types';
 
 interface DeleteMatchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  match: {
-    id: string;
-    match: string;
-  };
-  onDelete: (matchId: string) => void;
+  match: Match | null;
+  onDelete: (matchId: number) => void;
 }
 
 export function DeleteMatchModal({ isOpen, onClose, match, onDelete }: DeleteMatchModalProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDelete = async () => {
+    if (!match) return;
     setIsLoading(true);
     try {
       await onDelete(match.id);
@@ -37,6 +36,8 @@ export function DeleteMatchModal({ isOpen, onClose, match, onDelete }: DeleteMat
     }
   };
 
+  if (!match) return null;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -45,30 +46,19 @@ export function DeleteMatchModal({ isOpen, onClose, match, onDelete }: DeleteMat
             <AlertTriangle className="w-5 h-5" />
             Hapus Pertandingan
           </DialogTitle>
-          <DialogDescription>
-            Anda yakin ingin menghapus pertandingan ini?
-          </DialogDescription>
+          <DialogDescription>Anda yakin ingin menghapus pertandingan ini?</DialogDescription>
         </DialogHeader>
         
         <div className="py-4">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="font-medium text-red-900 mb-2">{match.match}</p>
-            <p className="text-sm text-red-700">
-              Tindakan ini tidak dapat dibatalkan. Semua data terkait pertandingan ini 
-              (termasuk odds snapshots) akan dihapus secara permanen.
-            </p>
+            <p className="font-medium text-red-900 mb-2">{`${match.home_team} vs ${match.away_team}`}</p>
+            <p className="text-sm text-red-700">Tindakan ini tidak dapat dibatalkan.</p>
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Batal
-          </Button>
-          <Button 
-            onClick={handleDelete} 
-            disabled={isLoading}
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
+          <Button variant="outline" onClick={onClose}>Batal</Button>
+          <Button onClick={handleDelete} disabled={isLoading} className="bg-red-600 hover:bg-red-700 text-white">
             {isLoading ? 'Menghapus...' : 'Ya, Hapus'}
           </Button>
         </DialogFooter>

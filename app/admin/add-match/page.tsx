@@ -9,22 +9,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Plus, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import api from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AddMatchPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    homeTeam: '',
-    awayTeam: '',
-    commenceTime: ''
+    home_team: '',
+    away_team: '',
+    commence_time: '',
+    sport_key: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,26 +33,36 @@ export default function AddMatchPage() {
     setIsLoading(true);
 
     try {
-      // Simulate API call to POST /api/v1/matches/manual
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Format waktu ke ISO string dengan Z (UTC)
+      const commenceTimeISO = new Date(formData.commence_time).toISOString();
+
+      await api.post('/api/v1/matches/manual', {
+        ...formData,
+        commence_time: commenceTimeISO,
+      });
       
-      // Show success message (in real app, use toast notification)
-      alert('Pertandingan berhasil ditambahkan!');
+      toast({
+        title: "Sukses!",
+        description: "Pertandingan baru berhasil ditambahkan.",
+      });
       
-      // Redirect back to admin status page
       router.push('/admin/status');
     } catch (error) {
-      alert('Gagal menambahkan pertandingan. Silakan coba lagi.');
+      toast({
+        variant: "destructive",
+        title: "Gagal",
+        description: "Gagal menambahkan pertandingan. Periksa kembali data Anda.",
+      });
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const isFormValid = formData.homeTeam && formData.awayTeam && formData.commenceTime;
+  const isFormValid = formData.home_team && formData.away_team && formData.commence_time && formData.sport_key;
 
   return (
     <Container className="py-8">
-      {/* Header */}
       <div className="mb-8">
         <Link href="/admin/status">
           <Button variant="ghost" className="gap-2 mb-4">
@@ -59,7 +70,6 @@ export default function AddMatchPage() {
             Kembali ke Status Data
           </Button>
         </Link>
-        
         <div className="flex items-center gap-3 mb-2">
           <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
             <Plus className="w-6 h-6 text-blue-600" />
@@ -71,7 +81,6 @@ export default function AddMatchPage() {
         </div>
       </div>
 
-      {/* Form */}
       <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -81,84 +90,32 @@ export default function AddMatchPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Home Team */}
             <div className="space-y-2">
-              <Label htmlFor="homeTeam">Tim Tuan Rumah</Label>
-              <Input
-                id="homeTeam"
-                name="homeTeam"
-                type="text"
-                placeholder="Contoh: Real Madrid"
-                value={formData.homeTeam}
-                onChange={handleInputChange}
-                required
-                className="w-full"
-              />
+              <Label htmlFor="home_team">Tim Tuan Rumah</Label>
+              <Input id="home_team" name="home_team" type="text" placeholder="Contoh: Real Madrid" value={formData.home_team} onChange={handleInputChange} required />
             </div>
-
-            {/* Away Team */}
             <div className="space-y-2">
-              <Label htmlFor="awayTeam">Tim Tamu</Label>
-              <Input
-                id="awayTeam"
-                name="awayTeam"
-                type="text"
-                placeholder="Contoh: Barcelona"
-                value={formData.awayTeam}
-                onChange={handleInputChange}
-                required
-                className="w-full"
-              />
+              <Label htmlFor="away_team">Tim Tamu</Label>
+              <Input id="away_team" name="away_team" type="text" placeholder="Contoh: Barcelona" value={formData.away_team} onChange={handleInputChange} required />
             </div>
-
-            {/* Commence Time */}
             <div className="space-y-2">
-              <Label htmlFor="commenceTime">Waktu Kick-off</Label>
-              <Input
-                id="commenceTime"
-                name="commenceTime"
-                type="datetime-local"
-                value={formData.commenceTime}
-                onChange={handleInputChange}
-                required
-                className="w-full"
-              />
-              <p className="text-sm text-gray-500">
-                Pilih tanggal dan waktu kick-off pertandingan
-              </p>
+              <Label htmlFor="sport_key">Sport Key</Label>
+              <Input id="sport_key" name="sport_key" type="text" placeholder="Contoh: soccer_spain_la_liga" value={formData.sport_key} onChange={handleInputChange} required />
+              <p className="text-sm text-gray-500">Format: soccer_country_league</p>
             </div>
-
-            {/* Submit Button */}
+            <div className="space-y-2">
+              <Label htmlFor="commence_time">Waktu Kick-off</Label>
+              <Input id="commence_time" name="commence_time" type="datetime-local" value={formData.commence_time} onChange={handleInputChange} required />
+            </div>
             <div className="flex gap-3 pt-4">
-              <Button
-                type="submit"
-                disabled={!isFormValid || isLoading}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
+              <Button type="submit" disabled={!isFormValid || isLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
                 {isLoading ? 'Menyimpan...' : 'Simpan Pertandingan'}
               </Button>
-              
-              <Link href="/admin/status">
-                <Button type="button" variant="outline">
-                  Batal
-                </Button>
-              </Link>
+              <Link href="/admin/status"><Button type="button" variant="outline">Batal</Button></Link>
             </div>
           </form>
         </CardContent>
       </Card>
-
-      {/* Info Box */}
-      <div className="mt-8 max-w-2xl">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="font-medium text-blue-900 mb-2">Informasi</h3>
-          <ul className="text-sm text-blue-700 space-y-1">
-            <li>• Pertandingan yang ditambahkan akan muncul di dashboard utama</li>
-            <li>• Data odds akan diambil secara otomatis oleh sistem</li>
-            <li>• Anda dapat mengedit skor akhir setelah pertandingan selesai</li>
-          </ul>
-        </div>
-      </div>
     </Container>
   );
 }
