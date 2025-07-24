@@ -36,6 +36,9 @@ export default function AddMatchPage() {
       // Format waktu ke ISO string dengan Z (UTC)
       const commenceTimeISO = new Date(formData.commence_time).toISOString();
 
+      const token = localStorage.getItem('accessToken');
+      console.log('Access token before POST:', token);
+
       await api.post('/api/v1/matches/manual', {
         ...formData,
         commence_time: commenceTimeISO,

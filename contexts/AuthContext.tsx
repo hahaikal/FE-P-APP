@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import api from '@/lib/api';
+import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode'; 
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -11,32 +11,49 @@ interface AuthContextType {
   isLoading: boolean;
 }
 
+interface JwtPayload {
+  exp: number;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-    if (token) {
+    const expiry = localStorage.getItem('tokenExpiry');
+
+    if (token && expiry && new Date().getTime() < parseInt(expiry, 10)) {
       setIsAuthenticated(true);
     } else {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('tokenExpiry');
       setIsAuthenticated(false);
     }
     setIsLoading(false);
   }, []);
 
   const login = (token: string) => {
-    localStorage.setItem('accessToken', token);
-    setIsAuthenticated(true);
-    router.push('/admin/status');
+    try {
+      const decoded: JwtPayload = jwtDecode(token);
+      const expiry = decoded.exp * 1000; // Konversi detik ke milidetik
+
+      localStorage.setItem('accessToken', token);
+      localStorage.setItem('tokenExpiry', expiry.toString());
+      setIsAuthenticated(true);
+      router.push('/admin/status');
+    } catch (error) {
+      console.error("Gagal mendekode token:", error);
+      logout(); // Jika token tidak valid, langsung logout
+    }
   };
 
   const logout = () => {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('tokenExpiry');
     setIsAuthenticated(false);
     router.push('/admin/login');
   };
