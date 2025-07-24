@@ -3,9 +3,16 @@
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, AlertCircle, XCircle, Edit, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { CheckCircle, AlertCircle, XCircle, Edit, Trash2, MoreVertical, PlusCircle } from 'lucide-react';
 import { EditScoreModal } from './EditScoreModal';
 import { DeleteMatchModal } from './DeleteMatchModal';
+import { EditOddsModal } from './EditOddsModal';
 import { Match } from '@/types';
 import api from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
@@ -19,7 +26,8 @@ interface StatusTableProps {
 }
 
 export function StatusTable({ data, type, refetchData }: StatusTableProps) {
-  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editScoreModalOpen, setEditScoreModalOpen] = useState(false);
+  const [editOddsModalOpen, setEditOddsModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const { toast } = useToast();
@@ -40,14 +48,11 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
     return <Badge className="bg-yellow-100 text-yellow-700 text-xs">Kurang Lengkap</Badge>;
   };
 
-  const handleEditScore = (match: Match) => {
+  const handleOpenModal = (match: Match, modal: 'score' | 'odds' | 'delete') => {
     setSelectedMatch(match);
-    setEditModalOpen(true);
-  };
-
-  const handleDeleteMatch = (match: Match) => {
-    setSelectedMatch(match);
-    setDeleteModalOpen(true);
+    if (modal === 'score') setEditScoreModalOpen(true);
+    if (modal === 'odds') setEditOddsModalOpen(true);
+    if (modal === 'delete') setDeleteModalOpen(true);
   };
 
   const handleSaveScore = async (matchId: number, homeScore: number, awayScore: number) => {
@@ -61,6 +66,17 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
     } catch (error) {
       toast({ variant: "destructive", title: "Gagal", description: "Gagal memperbarui skor." });
       console.error('Error saving score:', error);
+    }
+  };
+
+  const handleSaveOdds = async (matchId: number, oddsData: any) => {
+    try {
+      await api.post(`/api/v1/matches/${matchId}/odds/manual`, oddsData);
+      toast({ title: "Sukses", description: "Data odds berhasil ditambahkan." });
+      refetchData();
+    } catch (error) {
+      toast({ variant: "destructive", title: "Gagal", description: "Gagal menambahkan data odds." });
+      console.error('Error saving odds:', error);
     }
   };
 
@@ -122,14 +138,28 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(item)}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handleEditScore(item)} className="h-8 w-8 p-0">
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleDeleteMatch(item)} className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Buka menu</span>
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleOpenModal(item, 'score')}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>Edit Skor Akhir</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleOpenModal(item, 'odds')}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        <span>Tambah Odds Manual</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-red-600" onClick={() => handleOpenModal(item, 'delete')}>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>Hapus Pertandingan</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </td>
               </tr>
             ))}
@@ -140,10 +170,16 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
       {selectedMatch && (
         <>
           <EditScoreModal
-            isOpen={editModalOpen}
-            onClose={() => setEditModalOpen(false)}
+            isOpen={editScoreModalOpen}
+            onClose={() => setEditScoreModalOpen(false)}
             match={selectedMatch}
             onSave={handleSaveScore}
+          />
+          <EditOddsModal
+            isOpen={editOddsModalOpen}
+            onClose={() => setEditOddsModalOpen(false)}
+            match={selectedMatch}
+            onSave={handleSaveOdds}
           />
           <DeleteMatchModal
             isOpen={deleteModalOpen}
