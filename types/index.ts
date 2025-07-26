@@ -1,4 +1,5 @@
 export interface OddsSnapshot {
+  id: number;
   bookmaker: string;
   price_home: number;
   price_draw: number;

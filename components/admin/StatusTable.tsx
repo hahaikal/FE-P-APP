@@ -8,11 +8,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { CheckCircle, AlertCircle, XCircle, Edit, Trash2, MoreVertical, PlusCircle } from 'lucide-react';
+import { CheckCircle, AlertCircle, XCircle, Edit, Trash2, MoreVertical, PlusCircle, List } from 'lucide-react';
 import { EditScoreModal } from './EditScoreModal';
 import { DeleteMatchModal } from './DeleteMatchModal';
 import { EditOddsModal } from './EditOddsModal';
+import { OddsSnapshotList } from './OddsSnapshotList'; // Import baru
 import { Match } from '@/types';
 import api from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
@@ -29,9 +31,11 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
   const [editScoreModalOpen, setEditScoreModalOpen] = useState(false);
   const [editOddsModalOpen, setEditOddsModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [oddsListModalOpen, setOddsListModalOpen] = useState(false); // State baru
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const { toast } = useToast();
 
+  // ... (fungsi getStatusIcon dan getStatusBadge tidak berubah)
   const getStatusIcon = (match: Match) => {
     const oddsCount = match.odds_snapshots.length;
     const hasScore = match.result_home_score !== null && match.result_away_score !== null;
@@ -48,24 +52,22 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
     return <Badge className="bg-yellow-100 text-yellow-700 text-xs">Kurang Lengkap</Badge>;
   };
 
-  const handleOpenModal = (match: Match, modal: 'score' | 'odds' | 'delete') => {
+  const handleOpenModal = (match: Match, modal: 'score' | 'odds' | 'delete' | 'listOdds') => {
     setSelectedMatch(match);
     if (modal === 'score') setEditScoreModalOpen(true);
     if (modal === 'odds') setEditOddsModalOpen(true);
     if (modal === 'delete') setDeleteModalOpen(true);
+    if (modal === 'listOdds') setOddsListModalOpen(true); // Handler baru
   };
 
+  // ... (fungsi handleSaveScore, handleSaveOdds, handleConfirmDelete tidak berubah)
   const handleSaveScore = async (matchId: number, homeScore: number, awayScore: number) => {
     try {
-      await api.put(`/api/v1/matches/${matchId}/score`, {
-        result_home_score: homeScore,
-        result_away_score: awayScore,
-      });
+      await api.put(`/api/v1/matches/${matchId}/score`, { result_home_score: homeScore, result_away_score: awayScore });
       toast({ title: "Sukses", description: "Skor pertandingan berhasil diperbarui." });
       refetchData();
     } catch (error) {
       toast({ variant: "destructive", title: "Gagal", description: "Gagal memperbarui skor." });
-      console.error('Error saving score:', error);
     }
   };
 
@@ -76,7 +78,6 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
       refetchData();
     } catch (error) {
       toast({ variant: "destructive", title: "Gagal", description: "Gagal menambahkan data odds." });
-      console.error('Error saving odds:', error);
     }
   };
 
@@ -87,7 +88,6 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
       refetchData();
     } catch (error) {
       toast({ variant: "destructive", title: "Gagal", description: "Gagal menghapus pertandingan." });
-      console.error('Error deleting match:', error);
     }
   };
 
@@ -103,6 +103,7 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
+          {/* ... (thead tidak berubah) ... */}
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pertandingan</th>
@@ -116,6 +117,7 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
           <tbody className="bg-white divide-y divide-gray-200">
             {data.map((item) => (
               <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                {/* ... (kolom lain tidak berubah) ... */}
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
                     {getStatusIcon(item)}
@@ -146,15 +148,20 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleOpenModal(item, 'score')}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        <span>Edit Skor Akhir</span>
+                      <DropdownMenuItem onClick={() => handleOpenModal(item, 'listOdds')}>
+                        <List className="mr-2 h-4 w-4" />
+                        <span>Lihat & Kelola Odds</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleOpenModal(item, 'odds')}>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         <span>Tambah Odds Manual</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-red-600" onClick={() => handleOpenModal(item, 'delete')}>
+                       <DropdownMenuItem onClick={() => handleOpenModal(item, 'score')}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>Edit Skor Akhir</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50" onClick={() => handleOpenModal(item, 'delete')}>
                         <Trash2 className="mr-2 h-4 w-4" />
                         <span>Hapus Pertandingan</span>
                       </DropdownMenuItem>
@@ -169,24 +176,10 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
       
       {selectedMatch && (
         <>
-          <EditScoreModal
-            isOpen={editScoreModalOpen}
-            onClose={() => setEditScoreModalOpen(false)}
-            match={selectedMatch}
-            onSave={handleSaveScore}
-          />
-          <EditOddsModal
-            isOpen={editOddsModalOpen}
-            onClose={() => setEditOddsModalOpen(false)}
-            match={selectedMatch}
-            onSave={handleSaveOdds}
-          />
-          <DeleteMatchModal
-            isOpen={deleteModalOpen}
-            onClose={() => setDeleteModalOpen(false)}
-            match={selectedMatch}
-            onDelete={handleConfirmDelete}
-          />
+          <EditScoreModal isOpen={editScoreModalOpen} onClose={() => setEditScoreModalOpen(false)} match={selectedMatch} onSave={handleSaveScore} />
+          <EditOddsModal isOpen={editOddsModalOpen} onClose={() => setEditOddsModalOpen(false)} match={selectedMatch} onSave={handleSaveOdds} />
+          <DeleteMatchModal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} match={selectedMatch} onDelete={handleConfirmDelete} />
+          <OddsSnapshotList isOpen={oddsListModalOpen} onClose={() => setOddsListModalOpen(false)} match={selectedMatch} refetchData={refetchData} />
         </>
       )}
     </div>
