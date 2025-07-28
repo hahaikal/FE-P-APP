@@ -4,8 +4,7 @@ export interface OddsSnapshot {
   price_home: number;
   price_draw: number;
   price_away: number;
-  snapshot_time: string;
-  snapshot_timezone: string;
+  timestamp: string; // Mengganti snapshot_time dengan timestamp
 }
 
 export interface Match {

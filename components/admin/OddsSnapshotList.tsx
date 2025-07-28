@@ -15,6 +15,8 @@ import { Trash2 } from 'lucide-react';
 import { DeleteOddsModal } from './DeleteOddsModal';
 import api from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import { format, isValid } from 'date-fns';
+import { id as localeId } from 'date-fns/locale'; // PERBAIKAN
 
 interface OddsSnapshotListProps {
   isOpen: boolean;
@@ -37,7 +39,7 @@ export function OddsSnapshotList({ isOpen, onClose, match, refetchData }: OddsSn
     try {
       await api.delete(`/api/v1/odds/${oddsId}`);
       toast({ title: "Sukses", description: "Snapshot odds berhasil dihapus." });
-      refetchData(); // Refresh data di halaman utama
+      refetchData();
     } catch (error) {
       toast({ variant: "destructive", title: "Gagal", description: "Gagal menghapus snapshot odds." });
       console.error('Error deleting odds:', error);
@@ -74,7 +76,11 @@ export function OddsSnapshotList({ isOpen, onClose, match, refetchData }: OddsSn
                   {match.odds_snapshots.map((odds) => (
                     <TableRow key={odds.id}>
                       <TableCell>{odds.bookmaker}</TableCell>
-                      <TableCell>{odds.snapshot_time}</TableCell>
+                      <TableCell>
+                        {odds.timestamp && isValid(new Date(odds.timestamp))
+                          ? format(new Date(odds.timestamp), "dd MMM, HH:mm 'WIB'", { locale: localeId }) // PERBAIKAN
+                          : '-'}
+                      </TableCell>
                       <TableCell>{odds.price_home.toFixed(2)}</TableCell>
                       <TableCell>{odds.price_draw.toFixed(2)}</TableCell>
                       <TableCell>{odds.price_away.toFixed(2)}</TableCell>

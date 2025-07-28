@@ -14,12 +14,12 @@ import { CheckCircle, AlertCircle, XCircle, Edit, Trash2, MoreVertical, PlusCirc
 import { EditScoreModal } from './EditScoreModal';
 import { DeleteMatchModal } from './DeleteMatchModal';
 import { EditOddsModal } from './EditOddsModal';
-import { OddsSnapshotList } from './OddsSnapshotList'; // Import baru
+import { OddsSnapshotList } from './OddsSnapshotList';
 import { Match } from '@/types';
 import api from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
+import { id as localeId } from 'date-fns/locale'; // PERBAIKAN
 
 interface StatusTableProps {
   data: Match[];
@@ -31,11 +31,10 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
   const [editScoreModalOpen, setEditScoreModalOpen] = useState(false);
   const [editOddsModalOpen, setEditOddsModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [oddsListModalOpen, setOddsListModalOpen] = useState(false); // State baru
+  const [oddsListModalOpen, setOddsListModalOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const { toast } = useToast();
 
-  // ... (fungsi getStatusIcon dan getStatusBadge tidak berubah)
   const getStatusIcon = (match: Match) => {
     const oddsCount = match.odds_snapshots.length;
     const hasScore = match.result_home_score !== null && match.result_away_score !== null;
@@ -57,10 +56,9 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
     if (modal === 'score') setEditScoreModalOpen(true);
     if (modal === 'odds') setEditOddsModalOpen(true);
     if (modal === 'delete') setDeleteModalOpen(true);
-    if (modal === 'listOdds') setOddsListModalOpen(true); // Handler baru
+    if (modal === 'listOdds') setOddsListModalOpen(true);
   };
 
-  // ... (fungsi handleSaveScore, handleSaveOdds, handleConfirmDelete tidak berubah)
   const handleSaveScore = async (matchId: number, homeScore: number, awayScore: number) => {
     try {
       await api.put(`/api/v1/matches/${matchId}/score`, { result_home_score: homeScore, result_away_score: awayScore });
@@ -103,7 +101,6 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
-          {/* ... (thead tidak berubah) ... */}
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pertandingan</th>
@@ -117,7 +114,6 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
           <tbody className="bg-white divide-y divide-gray-200">
             {data.map((item) => (
               <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                {/* ... (kolom lain tidak berubah) ... */}
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
                     {getStatusIcon(item)}
@@ -128,7 +124,7 @@ export function StatusTable({ data, type, refetchData }: StatusTableProps) {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{format(new Date(item.commence_time), "EEEE, dd MMM yyyy - HH:mm 'WIB'", { locale: id })}</div>
+                  <div className="text-sm text-gray-900">{format(new Date(item.commence_time), "EEEE, dd MMM yyyy - HH:mm 'WIB'", { locale: localeId })}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{item.odds_snapshots.length}</div>

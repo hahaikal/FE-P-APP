@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/dialog';
 import { AlertTriangle } from 'lucide-react';
 import { OddsSnapshot } from '@/types';
+import { format, isValid } from 'date-fns';
+import { id as localeId } from 'date-fns/locale'; // PERBAIKAN
 
 interface DeleteOddsModalProps {
   isOpen: boolean;
@@ -54,7 +56,11 @@ export function DeleteOddsModal({ isOpen, onClose, oddsSnapshot, onDelete }: Del
         <div className="py-4">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm">
             <p><strong>Bookmaker:</strong> {oddsSnapshot.bookmaker}</p>
-            <p><strong>Waktu:</strong> {oddsSnapshot.snapshot_time}</p>
+            <p>
+              <strong>Waktu:</strong> {oddsSnapshot.timestamp && isValid(new Date(oddsSnapshot.timestamp))
+                ? format(new Date(oddsSnapshot.timestamp), "dd MMM yyyy, HH:mm 'WIB'", { locale: localeId }) // PERBAIKAN
+                : '-'}
+            </p>
             <p><strong>Odds:</strong> {oddsSnapshot.price_home} / {oddsSnapshot.price_draw} / {oddsSnapshot.price_away}</p>
             <p className="mt-2 text-red-700">Tindakan ini tidak dapat dibatalkan.</p>
           </div>
