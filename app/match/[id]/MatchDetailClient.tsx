@@ -24,40 +24,37 @@ export default function MatchDetailClient({ id }: MatchDetailClientProps) {
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [predictionUnavailable, setPredictionUnavailable] = useState(false); // State baru
+  const [predictionUnavailable, setPredictionUnavailable] = useState(false);
 
   const fetchData = useCallback(async () => {
+
     setIsLoading(true);
     setError(null);
-    setPredictionUnavailable(false); // Reset state pada setiap fetch
+    setPredictionUnavailable(false);
 
     try {
-      // 1. Ambil data pertandingan terlebih dahulu
       const matchResponse = await api.get<Match[]>(`/api/v1/matches/`);
       const foundMatch = matchResponse.data.find(m => m.id === parseInt(id, 10));
 
       if (!foundMatch) {
         throw new Error('Pertandingan tidak ditemukan.');
       }
+
       setMatch(foundMatch);
 
-      // 2. Setelah data pertandingan berhasil didapat, coba ambil data prediksi
       try {
         const predictionResponse = await api.get<Prediction>(`/api/v1/matches/${id}/prediction`);
         setPrediction(predictionResponse.data);
       } catch (predictionError: any) {
-        // Tangani error 400 secara spesifik
         if (predictionError.response && predictionError.response.status === 400) {
           setPredictionUnavailable(true);
-          setPrediction(null); // Pastikan data prediksi null
+          setPrediction(null);
         } else {
-          // Untuk error lain (500, 503, dll), lempar kembali untuk ditangani oleh catch utama
           throw predictionError;
         }
       }
 
     } catch (err: any) {
-      // Catch utama untuk error fatal (pertandingan tidak ditemukan, server down, dll)
       if (err.response?.status === 503) {
         setError('Layanan prediksi saat ini tidak tersedia. Silakan coba lagi nanti.');
       } else {
@@ -90,7 +87,7 @@ export default function MatchDetailClient({ id }: MatchDetailClientProps) {
     );
   }
 
-  if (error || !match) { // Cukup periksa !match, karena error sudah mencakup kasus lain
+  if (error || !match) {
     return (
       <Container className="py-8">
         <div className="text-center bg-red-50 text-red-700 p-8 rounded-2xl">
@@ -127,7 +124,6 @@ export default function MatchDetailClient({ id }: MatchDetailClientProps) {
 
       <MatchHeader match={match} />
 
-      {/* Bagian Prediksi Utama */}
       {prediction && (
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 text-white mb-8">
           <div className="text-center">
@@ -139,7 +135,6 @@ export default function MatchDetailClient({ id }: MatchDetailClientProps) {
         </div>
       )}
 
-      {/* Pesan jika prediksi tidak tersedia */}
       {predictionUnavailable && (
          <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-6 rounded-r-lg mb-8" role="alert">
             <div className="flex">
@@ -152,7 +147,6 @@ export default function MatchDetailClient({ id }: MatchDetailClientProps) {
         </div>
       )}
 
-      {/* Bagian Chart dan Statistik */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <h3 className="text-xl font-bold text-gray-900 mb-4">Probabilitas Hasil</h3>
@@ -179,7 +173,6 @@ export default function MatchDetailClient({ id }: MatchDetailClientProps) {
         </div>
       </div>
 
-      {/* Informasi Pertandingan */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-xl font-bold text-gray-900 mb-4">Informasi Pertandingan</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (token: string) => {
     try {
       const decoded: JwtPayload = jwtDecode(token);
-      const expiry = decoded.exp * 1000; // Konversi detik ke milidetik
+      const expiry = decoded.exp * 1000;
 
       localStorage.setItem('accessToken', token);
       localStorage.setItem('tokenExpiry', expiry.toString());
@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.push('/admin/status');
     } catch (error) {
       console.error("Gagal mendekode token:", error);
-      logout(); // Jika token tidak valid, langsung logout
+      logout();
     }
   };
 

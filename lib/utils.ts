@@ -5,7 +5,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Fungsi untuk mengubah sport_key menjadi nama kompetisi yang mudah dibaca
 export function mapSportKeyToCompetition(sportKey: string): string {
   const competitionMap: { [key: string]: string } = {
     soccer_epl: 'English Premier League',
@@ -17,9 +16,7 @@ export function mapSportKeyToCompetition(sportKey: string): string {
   return competitionMap[sportKey] || sportKey.replace(/_/g, ' ').toUpperCase();
 }
 
-// Fungsi untuk mendapatkan emoji logo tim (sebagai placeholder)
 export function getTeamLogo(teamName: string): string {
-  // Ini adalah pemetaan sederhana, bisa dikembangkan lebih lanjut
   const logoMap: { [key: string]: string } = {
     'arsenal': '🔴',
     'chelsea': '🔵',

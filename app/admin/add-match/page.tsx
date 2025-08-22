@@ -33,7 +33,6 @@ export default function AddMatchPage() {
     setIsLoading(true);
 
     try {
-      // Format waktu ke ISO string dengan Z (UTC)
       const commenceTimeISO = new Date(formData.commence_time).toISOString();
 
       const token = localStorage.getItem('accessToken');

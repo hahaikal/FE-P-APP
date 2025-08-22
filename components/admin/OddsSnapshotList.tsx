@@ -16,7 +16,7 @@ import { DeleteOddsModal } from './DeleteOddsModal';
 import api from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { format, isValid } from 'date-fns';
-import { id as localeId } from 'date-fns/locale'; // PERBAIKAN
+import { id as localeId } from 'date-fns/locale';
 
 interface OddsSnapshotListProps {
   isOpen: boolean;

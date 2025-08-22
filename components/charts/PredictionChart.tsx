@@ -15,9 +15,7 @@ export function PredictionChart({ homeTeam, awayTeam, probabilities }: Predictio
   
   return (
     <div className="space-y-6">
-      {/* Bar Chart */}
       <div className="space-y-4">
-        {/* Home Team */}
         <div>
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-gray-900">{homeTeam}</span>
@@ -45,7 +43,6 @@ export function PredictionChart({ homeTeam, awayTeam, probabilities }: Predictio
           </div>
         </div>
 
-        {/* Away Team */}
         <div>
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-gray-900">{awayTeam}</span>
@@ -60,7 +57,6 @@ export function PredictionChart({ homeTeam, awayTeam, probabilities }: Predictio
         </div>
       </div>
 
-      {/* Legend */}
       <div className="flex justify-center gap-6 pt-4 border-t border-gray-100">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 bg-blue-600 rounded-full"></div>

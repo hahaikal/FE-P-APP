@@ -11,7 +11,6 @@ export function Header() {
     <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
       <Container>
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
               <TrendingUp className="w-6 h-6 text-white" />
@@ -22,7 +21,6 @@ export function Header() {
             </div>
           </Link>
 
-          {/* Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             <Link 
               href="/" 
@@ -45,7 +43,6 @@ export function Header() {
             </Link>
           </nav>
 
-          {/* Actions */}
           <div className="flex items-center gap-3">
             <Badge variant="secondary" className="hidden sm:flex">
               Live

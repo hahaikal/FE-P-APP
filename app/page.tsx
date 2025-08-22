@@ -20,7 +20,6 @@ export default function HomePage() {
       setError(null);
       try {
         const response = await api.get<Match[]>('/api/v1/matches/');
-        // Filter pertandingan yang belum dimulai dan urutkan
         const upcoming = response.data
           .filter(match => new Date(match.commence_time) > new Date())
           .sort((a, b) => new Date(a.commence_time).getTime() - new Date(b.commence_time).getTime());
@@ -37,11 +36,10 @@ export default function HomePage() {
 
   return (
     <Container className="py-8">
-      {/* Hero Section */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium mb-4">
           <TrendingUp className="w-4 h-4" />
-          Prediksi Akurat Berdasarkan AI
+          Prediksi Akurat Berdasarkan Machine Learning
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
           Prediksi Pertandingan
@@ -53,7 +51,6 @@ export default function HomePage() {
         </p>
       </div>
 
-      {/* Matches Section */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900">Pertandingan Mendatang</h2>

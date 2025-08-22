@@ -59,7 +59,6 @@ export default function AdminStatusPage() {
 
   return (
     <Container className="py-8">
-      {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>

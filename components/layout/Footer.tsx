@@ -7,7 +7,6 @@ export function Footer() {
       <Container>
         <div className="py-8">
           <div className="flex flex-col md:flex-row items-center justify-between">
-            {/* Logo */}
             <div className="flex items-center gap-3 mb-4 md:mb-0">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-white" />
@@ -18,7 +17,6 @@ export function Footer() {
               </div>
             </div>
 
-            {/* Copyright */}
             <div className="text-center md:text-right">
               <p className="text-sm text-gray-600">
                 © 2025 P-APP. Platform prediksi pertandingan sepak bola.

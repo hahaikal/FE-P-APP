@@ -13,7 +13,7 @@ import {
 import { AlertTriangle } from 'lucide-react';
 import { OddsSnapshot } from '@/types';
 import { format, isValid } from 'date-fns';
-import { id as localeId } from 'date-fns/locale'; // PERBAIKAN
+import { id as localeId } from 'date-fns/locale';
 
 interface DeleteOddsModalProps {
   isOpen: boolean;
